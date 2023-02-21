@@ -1,18 +1,27 @@
 import React, { useEffect, useRef, useState } from "react";
-
+import "react-date-range/dist/styles.css"; // main css file
+import "react-date-range/dist/theme/default.css"; // theme css file
+import { DateRange } from "react-date-range";
 const Leads = () => {
   const [leads, setLeads] = useState([]);
   const [status, setStatus] = useState([]);
   const [sid1, setSid1] = useState([]);
+  const [date, setDate] = useState([
+    {
+      startDate: new Date(),
+      endDate: null,
+      key: "selection",
+    },
+  ]);
   let sid = [];
-  const ref = useRef(null);
+  const ref = useRef("");
   const [source, setSource] = useState([]);
   const [assign, setAssign] = useState([]);
   const [search, setSearch] = useState("");
   let setData = [];
   let setData1 = [];
   let setData2 = [];
-  const url = `http://crm.softvalley.sveducrm.com/api/admin/lead/list?page=1&limit=20`;
+  const url = `http://crm.softvalley.sveducrm.com/api/admin/lead/list?page=1&limit=25`;
   const url4 = `http://crm.softvalley.sveducrm.com/api/admin/lead/list?page=1&limit=10`;
   useEffect(() => {
     fetch(url, {
@@ -106,7 +115,8 @@ const Leads = () => {
     console.log(setData2);
   };
   async function getResponse(form) {
-    console.log(form);
+    console.log(form, date, date[0].startDate, date[0].endDate);
+
     await fetch(url4, {
       method: "POST",
       headers: {
@@ -138,8 +148,8 @@ const Leads = () => {
       lead_status_id: setData,
       source_id: setData1,
       user_id: setData2,
-      contacted_date_from: "",
-      contacted_date_to: "",
+      contacted_date_from: "2023-02-07T18:00:00.000Z",
+      contacted_date_to: "2023-02-07T18:00:00.000Z",
     };
 
     console.log(setData, setData1, setData2);
@@ -148,7 +158,7 @@ const Leads = () => {
     getResponse(form);
   };
   const reset = () => {
-    ref.selected.value = "";
+    ref.select.value = "";
     fetch(url, {
       method: "POST",
       headers: {
@@ -190,47 +200,78 @@ const Leads = () => {
       </div>
 
       <div className="overflow-x-auto">
-        <input
-          className="input input-bordered border-accent"
-          type="text"
-          placeholder="Input Here..."
-          onChange={(event) => {
-            setSearch(event.target.value);
-          }}
+        <DateRange
+          editableDateInputs={true}
+          onChange={(item) => setDate([item.selection])}
+          moveRangeOnFirstSelection={false}
+          ranges={date}
         />
-        <form onSubmit={formData}>
-          <select onChange={statu} ref={ref} className="select w-full max-w-xs">
-            <option value="" disabled selected>
-              Please select One
-            </option>
+        <form
+          onSubmit={formData}
+          ref={ref}
+          className="lg:flex gap-4 justify-center items-center"
+        >
+          {" "}
+          <input
+            className="input input-bordered border-black mt-6"
+            type="text"
+            placeholder="Search Here..."
+            onChange={(event) => {
+              setSearch(event.target.value);
+            }}
+          />
+          <div>
+            <h1>source</h1>
+            <select
+              onChange={statu}
+              className="select w-full max-w-xs outline-2 border-primary m-2"
+            >
+              <option value="" disabled selected>
+                Please select One
+              </option>
 
-            {source?.map((option) => (
-              <option value={option?.id}>{option?.name}</option>
-            ))}
-          </select>
-          <select onChange={statu1} className="select w-full max-w-xs">
-            <option value="" disabled selected>
-              Please select One
-            </option>
+              {source?.map((option) => (
+                <option value={option?.id}>{option?.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            {" "}
+            <h1>status</h1>
+            <select
+              onChange={statu1}
+              className="select w-full max-w-xs outline-2 border-primary m-2"
+            >
+              <option value="" disabled selected>
+                Please select One
+              </option>
 
-            {status?.map((option) => (
-              <option value={option?.id}>{option?.name}</option>
-            ))}
-          </select>
-          <select onChange={statu2} className="select w-full max-w-xs">
-            <option value="" disabled selected>
-              Please select One
-            </option>
+              {status?.map((option) => (
+                <option value={option?.id}>{option?.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            {" "}
+            <h1>Assign</h1>
+            <select
+              onChange={statu2}
+              className="select w-full max-w-xs outline-2 border-primary m-2"
+            >
+              <option value="" disabled selected>
+                Please select One
+              </option>
 
-            {assign?.map((option) => (
-              <option value={option?.user_id}>{option?.name}</option>
-            ))}
-          </select>
-          <button type="submit" className="btn btn-primary">
+              {assign?.map((option) => (
+                <option value={option?.user_id}>{option?.name}</option>
+              ))}
+            </select>
+          </div>
+          <button type="submit" className="btn btn-primary  mt-5">
             {" "}
             Submit{" "}
           </button>
-          <button type="reset" className="btn bg-red-500" onClick={reset}>
+          <button type="reset" className="btn bg-red-500 mt-5" onClick={reset}>
             Reset
           </button>
         </form>
